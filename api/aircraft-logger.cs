@@ -3,13 +3,8 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
-using Syncfusion.Drawing;
-using Syncfusion.Pdf;
-using Syncfusion.Pdf.Graphics;
-using Syncfusion.Pdf.Tables;
 using System;
-using System.Collections.Generic;
-using System.Data;
+using System.Collections.Generic;   
 using System.IO;
 using System.Threading.Tasks;
 using Azure.Storage;
@@ -95,66 +90,68 @@ namespace aircraft_logger
                 log.LogError(e.ToString());
             }
 
-            Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(Environment.GetEnvironmentVariable("pdfKey"));
-            //Create a new PDF document.
-            PdfDocument outputFile = new PdfDocument();
-            outputFile.PageSettings.Orientation = PdfPageOrientation.Landscape;
-            //Add a page to the document.
-            PdfPage page = outputFile.Pages.Add();
-            PdfGraphics graphics = page.Graphics;
-            //Set the standard font.
-            PdfFont font = new PdfStandardFont(PdfFontFamily.Helvetica, 20);
-            //Draw the text.
-            graphics.DrawString($"Flight log for {flightList[0].AircraftRegistration}", font, PdfBrushes.Black, new PointF(0, 0));
-            // Create a PdfLightTable.
-            PdfLightTable pdfLightTable = new PdfLightTable
-            {
-                Style =
-                {
-                    ShowHeader = true
-                }
-            };
+            // Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(Environment.GetEnvironmentVariable("pdfKey"));
+            // //Create a new PDF document.
+            // PdfDocument outputFile = new PdfDocument();
+            // outputFile.PageSettings.Orientation = PdfPageOrientation.Landscape;
+            // //Add a page to the document.
+            // PdfPage page = outputFile.Pages.Add();
+            // PdfGraphics graphics = page.Graphics;
+            // //Set the standard font.
+            // PdfFont font = new PdfStandardFont(PdfFontFamily.Helvetica, 20);
+            // //Draw the text.
+            // graphics.DrawString($"Flight log for {flightList[0].AircraftRegistration}", font, PdfBrushes.Black, new PointF(0, 0));
+            // // Create a PdfLightTable.
+            // PdfLightTable pdfLightTable = new PdfLightTable
+            // {
+            //     Style =
+            //     {
+            //         ShowHeader = true
+            //     }
+            // };
 
-            DataTable table = new DataTable();
-            table.Columns.Add("Date");
-            table.Columns.Add("Aircraft Registration");
-            table.Columns.Add("Name");
-            table.Columns.Add("Origin");
-            table.Columns.Add("Destination");
-            table.Columns.Add("Tacho Start");
-            table.Columns.Add("Tacho End");
-            table.Columns.Add("VDO Start");
-            table.Columns.Add("VDO End");
-            table.Columns.Add("Number of landings");
-            table.Columns.Add("Landings at other airports");
-            table.Columns.Add("Fuel at start");
-            table.Columns.Add("Fuel at end");
-            table.Columns.Add("Fuel Purchased at pilot's expense");
-            table.Columns.Add("Fuel added");
-            table.Columns.Add("Oil added");
-            table.Columns.Add("Comments");
+            // DataTable table = new DataTable();
+            // table.Columns.Add("Date");
+            // table.Columns.Add("Aircraft Registration");
+            // table.Columns.Add("Name");
+            // table.Columns.Add("Origin");
+            // table.Columns.Add("Destination");
+            // table.Columns.Add("Tacho Start");
+            // table.Columns.Add("Tacho End");
+            // table.Columns.Add("VDO Start");
+            // table.Columns.Add("VDO End");
+            // table.Columns.Add("Number of landings");
+            // table.Columns.Add("Landings at other airports");
+            // table.Columns.Add("Fuel at start");
+            // table.Columns.Add("Fuel at end");
+            // table.Columns.Add("Fuel Purchased at pilot's expense");
+            // table.Columns.Add("Fuel added");
+            // table.Columns.Add("Oil added");
+            // table.Columns.Add("Comments");
 
-            foreach (var flight in flightList)
-            {
-                table.Rows.Add(flight.Date.ToString("dd/MM/yyyy"), flight.AircraftRegistration, flight.PilotName, flight.PointOfOrigin, flight.PointOfDestination, flight.TachoStart, flight.TachoEnd, flight.VdoStart, flight.VdoEnd, flight.Landings, flight.Landings_Other_Airports, flight.FuelStart, flight.FuelEnd, flight.FuelPurchased, flight.FuelAdded, flight.OilAdded, flight.Comments);
-            }
+            // foreach (var flight in flightList)
+            // {
+            //     table.Rows.Add(flight.Date.ToString("dd/MM/yyyy"), flight.AircraftRegistration, flight.PilotName, flight.PointOfOrigin, flight.PointOfDestination, flight.TachoStart, flight.TachoEnd, flight.VdoStart, flight.VdoEnd, flight.Landings, flight.Landings_Other_Airports, flight.FuelStart, flight.FuelEnd, flight.FuelPurchased, flight.FuelAdded, flight.OilAdded, flight.Comments);
+            // }
 
-            pdfLightTable.DataSource = table;
-            pdfLightTable.AllowRowBreakAcrossPages = true;
+            // pdfLightTable.DataSource = table;
+            // pdfLightTable.AllowRowBreakAcrossPages = true;
 
-            pdfLightTable.ApplyBuiltinStyle(PdfLightTableBuiltinStyle.GridTable4Accent1);
-            PdfLightTableLayoutFormat layoutFormat = new PdfLightTableLayoutFormat
-            {
-                Break = PdfLayoutBreakType.FitPage,
-                Layout = PdfLayoutType.Paginate
-            };
+            // pdfLightTable.ApplyBuiltinStyle(PdfLightTableBuiltinStyle.GridTable4Accent1);
+            // PdfLightTableLayoutFormat layoutFormat = new PdfLightTableLayoutFormat
+            // {
+            //     Break = PdfLayoutBreakType.FitPage,
+            //     Layout = PdfLayoutType.Paginate
+            // };
 
-            pdfLightTable.Draw(page, new PointF(0, 100), layoutFormat);
+            // pdfLightTable.Draw(page, new PointF(0, 100), layoutFormat);
+
+
 
             var outboundBlob = new BlobAttribute($"reports/{customerId}/{flightList[0].AircraftRegistration}.pdf", FileAccess.Write);
             await using var writer = binder.Bind<Stream>(outboundBlob);
 
-            outputFile.Save(writer);
+            //outputFile.Save(writer);
 
             var sasUrl = GetSasForBlob($"{flightList[0].AircraftRegistration}.pdf", $"reports/{customerId}", DateTime.UtcNow.AddMinutes(2));
 
